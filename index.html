@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZeroUp Rootful Style - Cyan Theme with Functional Tabs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Configure the Inter font and default background/text color */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8; /* Light gray background for contrast with white cards */
+        }
+        
+        /* The container for the image icon, ensuring it has the correct size and clip */
+        .app-icon-container {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            overflow: hidden; /* Crucial to clip the image to the rounded border */
+            flex-shrink: 0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-icon-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures the image covers the container without distortion */
+        }
+
+        /* Custom toggle styling to match the iOS radio button style */
+        .radio-styled {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            display: inline-block;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .radio-styled:checked {
+            /* NEW COLOR: Cyan-500 (Hex: #06b6d4) for the border and background when checked */
+            border-color: #06b6d4; 
+            background-color: #06b6d4;
+        }
+
+        .radio-styled:checked::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Ensure the main content uses the full viewport for a mobile feel */
+        .container-wrapper {
+            max-width: 640px; /* Max width for centralizing on larger screens */
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: white; /* White background for the main content area */
+        }
+
+        /* Custom Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none; /* Hidden by default */
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            padding: 24px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="status-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Download Initiated</h3>
+            <p id="modal-message" class="text-sm text-gray-600 mb-6">
+                Redirecting to download link...
+            </p>
+            <button onclick="closeModal()" class="w-full bg-cyan-500 text-white py-2 rounded-lg font-semibold hover:bg-cyan-600 transition duration-150">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <div class="container-wrapper shadow-xl">
+
+        <header class="sticky top-0 bg-white border-b border-gray-100 z-10 p-4">
+            <div class="flex justify-between items-center text-gray-500">
+                <button aria-label="Settings" class="p-2 -ml-2 text-cyan-500">
+                    <i data-lucide="circle" class="w-6 h-6"></i>
+                </button>
+                
+                <span class="text-sm font-medium text-gray-700">ZeroUp Rootful</span>
+                
+                <button aria-label="Share" class="p-2 -mr-2 text-cyan-500">
+                    <i data-lucide="send" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="pb-8">
+            
+            <div class="px-4 py-6">
+                <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">ZeroUp Rootful</h1>
+            </div>
+
+            <div class="px-4 mb-6">
+                <div class="flex space-x-2 bg-gray-100 p-1 rounded-full">
+                    <button id="home-tab" onclick="switchTab('home')" class="w-1/2 px-6 py-2 text-sm font-semibold text-white bg-cyan-500 rounded-full shadow-md transition duration-150 ease-in-out">
+                        HOME
+                    </button>
+                    <button id="certificate-tab" onclick="switchTab('certificate')" class="w-1/2 px-6 py-2 text-sm font-semibold text-gray-500 bg-gray-100 rounded-full transition duration-150 ease-in-out hover:bg-gray-200">
+                        CERTIFICATE
+                    </button>
+                </div>
+            </div>
+
+            <div id="tab-content-container">
+                
+                <div id="home-content" class="block">
+                    <div class="px-4 py-3 mb-6">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="esign_mode" class="radio-styled">
+                            <span class="text-base font-semibold text-gray-700">Esign Bypass Revoke</span>
+                        </label>
+                    </div>
+
+                    <div id="app-list-esign">
+                        
+                        <div id="app-1" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://esign.yyyue.xyz/ESignLogo200.png" alt="Esign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=E.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900 flex items-center">
+                                        Esign
+                                        <i data-lucide="check-circle" class="w-4 h-4 ml-1 text-green-500 fill-current"></i>
+                                    </p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">China Telecommunications Corporation</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/qylEe1" target="_blank" id="link-1" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-2" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://esign.yyyue.xyz/ESignLogo200.png" alt="Esign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=E.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Esign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">GLOBAL TAKEOFF, INC</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/yHH6NE" target="_blank" id="link-2" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-3" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://esign.yyyue.xyz/ESignLogo200.png" alt="Esign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=E.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Esign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">Tianjin University of Commerce</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/SXgmxb" target="_blank" id="link-3" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-4" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://esign.yyyue.xyz/ESignLogo200.png" alt="Esign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=E.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Esign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">VIETNAM JOINT STOCK </p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/7SxrmH" target="_blank" id="link-4" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-5" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://esign.yyyue.xyz/ESignLogo200.png" alt="Esign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=E.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Esign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">VIETTEL GROUP</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/KX3VBb" target="_blank" id="link-5" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-6" class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://esign.yyyue.xyz/ESignLogo200.png" alt="Esign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=E.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Esign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">CHIBA INSTITUTE OF TECHNOLOGY</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/u9v6lH" target="_blank" id="link-6" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 mb-6">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="esign_mode" class="radio-styled">
+                            <span class="text-base font-semibold text-gray-700">Esign Bypass Revoke</span>
+                        </label>
+                    </div>
+
+                    <div id="app-list-ksign">
+                        
+                        <div id="app-1" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://ipaomtk.com/wp-content/uploads/2025/06/ksign-IPAOMTK.webp" alt="Ksign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=K.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900 flex items-center">
+                                        Ksign
+                                        <i data-lucide="check-circle" class="w-4 h-4 ml-1 text-green-500 fill-current"></i>
+                                    </p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">China Telecommunications Corporation</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/qylEe1" target="_blank" id="link-1" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-2" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://ipaomtk.com/wp-content/uploads/2025/06/ksign-IPAOMTK.webp" alt="Ksign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=K.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Ksign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">GLOBAL TAKEOFF, INC</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/yHH6NE" target="_blank" id="link-2" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-3" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://ipaomtk.com/wp-content/uploads/2025/06/ksign-IPAOMTK.webp" alt="Ksign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=K.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Ksign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">Tianjin University of Commerce</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/SXgmxb" target="_blank" id="link-3" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-4" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://ipaomtk.com/wp-content/uploads/2025/06/ksign-IPAOMTK.webp" alt="Ksign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=K.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Ksign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">VIETNAM JOINT STOCK </p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/7SxrmH" target="_blank" id="link-4" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-5" class="flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://ipaomtk.com/wp-content/uploads/2025/06/ksign-IPAOMTK.webp" alt="Ksign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=K.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Ksign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">VIETTEL GROUP</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/KX3VBb" target="_blank" id="link-5" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+
+                        <div id="app-6" class="flex items-center justify-between p-4 hover:bg-gray-50 transition duration-100 ease-in-out cursor-pointer">
+                            <div class="flex items-center space-x-4">
+                                <div class="app-icon-container">
+                                    <img src="https://ipaomtk.com/wp-content/uploads/2025/06/ksign-IPAOMTK.webp" alt="Ksign Logo" onerror="this.src='https://placehold.co/44x44/cccccc/333333?text=K.S'" loading="lazy">
+                                </div>
+                                <div>
+                                    <p class="text-base font-bold text-gray-900">Ksign</p>
+                                    <p class="text-sm text-gray-500 -mt-0.5">CHIBA INSTITUTE OF TECHNOLOGY</p>
+                                </div>
+                            </div>
+                            <a href="https://api.khoindvn.io.vn/u9v6lH" target="_blank" id="link-6" class="bg-cyan-100 text-cyan-600 text-xs font-bold px-3 py-1 rounded-full hover:bg-cyan-200 transition duration-150 ease-in-out flex-shrink-0">Install</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="certificate-content" class="hidden">
+                    <div class="px-4 py-8 text-center text-gray-500">
+                        <i data-lucide="award" class="w-10 h-10 mx-auto mb-3 text-cyan-500"></i>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Certificate Management</h3>
+                        <p class="text-sm mb-4">This section allows you to manage installed application certificates.</p>
+                        
+                        <div class="p-4 border border-cyan-200 bg-cyan-50 rounded-lg max-w-sm mx-auto">
+                            <p class="text-sm text-cyan-700 font-medium mb-4"></p>
+                            <a href="https://github.com/esigncert/khoindvn/raw/refs/heads/main/document/DNS/Certs-Khoindvn.zip" download="Certs-Khoindvn.zip" class="inline-block w-full bg-cyan-500 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-cyan-600 transition">Download Certificate</a>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="text-center pt-8 pb-4 text-xs text-gray-400">
+                <p> ZeroUp Rootful Copyright &copy; All rights reserved. 2025</p>
+            </div>
+
+        </main>
+    </div>
+
+    <script type="module">
+        // --- Custom Modal Functions ---
+        const modal = document.getElementById('status-modal');
+        // The modal is now only dismissible
+        window.closeModal = () => {
+            modal.style.display = 'none';
+        };
+        
+        // --- Tab Switching Logic ---
+        window.switchTab = (tabId) => {
+            const homeContent = document.getElementById('home-content');
+            const certificateContent = document.getElementById('certificate-content');
+            const homeTab = document.getElementById('home-tab');
+            const certificateTab = document.getElementById('certificate-tab');
+
+            // Reset all content visibility and tab styles
+            homeContent.classList.add('hidden');
+            certificateContent.classList.add('hidden');
+            
+            // Reset tab styles to inactive
+            homeTab.classList.remove('bg-cyan-500', 'text-white', 'shadow-md');
+            homeTab.classList.add('bg-gray-100', 'text-gray-500');
+
+            certificateTab.classList.remove('bg-cyan-500', 'text-white', 'shadow-md');
+            certificateTab.classList.add('bg-gray-100', 'text-gray-500');
+            
+            // Set active content and tab style
+            if (tabId === 'home') {
+                homeContent.classList.remove('hidden');
+                homeTab.classList.remove('bg-gray-100', 'text-gray-500');
+                homeTab.classList.add('bg-cyan-500', 'text-white', 'shadow-md');
+            } else if (tabId === 'certificate') {
+                certificateContent.classList.remove('hidden');
+                certificateTab.classList.remove('bg-gray-100', 'text-gray-500');
+                certificateTab.classList.add('bg-cyan-500', 'text-white', 'shadow-md');
+            }
+        };
+
+        // Initialize the HOME tab view on load
+        document.addEventListener('DOMContentLoaded', () => {
+            window.switchTab('home');
+        });
+
+
+        // --- Firebase SDK Imports (Required Setup for Web Apps) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app;
+        let db;
+        let auth;
+        let userId;
+
+        // Initialize Firebase and Authentication
+        async function initializeAppAndAuth() {
+            try {
+                if (Object.keys(firebaseConfig).length > 0) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                    userId = auth.currentUser?.uid || crypto.randomUUID();
+                    console.log(`Firebase initialized. User ID: ${userId}`);
+                } else {
+                    console.warn("Firebase config is missing. Firestore features will be unavailable.");
+                    userId = crypto.randomUUID();
+                }
+            } catch (error) {
+                console.error("Firebase initialization or sign-in failed:", error);
+                userId = crypto.randomUUID();
+            }
+        }
+
+        initializeAppAndAuth();
+    </script>
+</body>
+</html>
